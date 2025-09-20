@@ -8,7 +8,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
 <style>
 body { font-family: Arial, sans-serif; margin: 0; padding: 0; overflow: hidden; }
-* { }
 #myVideo { position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; }
 .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(12,12,12,0.75); z-index: -1; }
 .container { max-width: 100%; padding: 20px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 70vh; position: relative; z-index: 1; }
@@ -26,15 +25,44 @@ h1 {
   animation: gradientMove 8s ease infinite, glowPulse 3s ease-in-out infinite;
   -webkit-text-stroke: 0.8px rgba(0,0,0,0.6);
   text-shadow: 0 0 10px rgba(227,227,227,0.7), 2px 2px 6px rgba(0,0,0,0.6);
-  letter-spacing: 12px; /* spațiere mai mare între litere */
+  letter-spacing: 12px;
 }
 
 @keyframes gradientMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 @keyframes glowPulse { 0%,100% { text-shadow:0 0 10px rgba(227,227,227,0.7), 2px 2px 6px rgba(0,0,0,0.6);} 50% { text-shadow:0 0 20px rgba(255,255,255,1), 2px 2 12px rgba(0,0,0,0.8);} }
 
 .social-buttons { margin-top: 20px; }
-.social-buttons a { display: flex; align-items: center; justify-content: center; width: 225px; padding: 15px 20px; margin: 10px auto; background-color: rgba(30,30,30,0.6); color: #E3E3E3; text-decoration: none; border-radius: 10px; transition: background-color 0.3s ease, transform 0.2s ease; border: 2px solid rgba(156,27,48,0.8); backdrop-filter: blur(4px); box-shadow: 0 4px 12px rgba(0,0,0,0.6); font-family: 'Poppins', sans-serif; font-weight: 600; }
-.social-buttons a:hover { background-color: rgba(156,27,48,0.9); transform: scale(1.05); box-shadow: 0 6px 16px rgba(0,0,0,0.8); }
+.social-buttons a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 225px;
+  padding: 15px 20px;
+  margin: 10px auto;
+  background-color: rgba(30,30,30,0.6);
+  color: #E3E3E3;
+  text-decoration: none;
+  border-radius: 10px;
+  border: 2px solid rgba(156,27,48,0.8);
+  backdrop-filter: blur(4px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  transition: background-color 0.3s ease, transform 0.2s ease, opacity 0.8s ease, transform 0.8s ease;
+
+  /* 🔹 inițial ascunse pentru fade-in */
+  opacity: 0;
+  transform: translateY(40px);
+}
+.social-buttons a.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+.social-buttons a:hover {
+  background-color: rgba(156,27,48,0.9);
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.8);
+}
 .social-buttons img { margin-right: 6px; height: 20px; }
 
 #enterOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(12, 12, 12, 1); z-index: 5; display:flex; flex-direction: column; align-items:center; justify-content:center; color:#E3E3E3; font-size:2rem; font-weight:bold; text-transform:uppercase; transition: opacity 0.8s ease, transform 0.8s ease; }
@@ -90,8 +118,6 @@ h1 {
 
 <div id="privacyPopup">
   <button class="closeBtn">&times;</button>
-
-  <!-- Butoane schimbare limba -->
   <div id="langButtons" style="position:absolute; top:10px; left:10px; display:flex; gap:10px; z-index:1010;">
     <button class="langBtn" data-lang="en" style="width:40px; height:40px; border-radius:50%; border:none; cursor:pointer; background:transparent;">
       <img src="./assets/united-kingdom.png" alt="EN" style="width:125%; height:100%; border-radius:50%;">
@@ -100,7 +126,6 @@ h1 {
       <img src="./assets/flag.png" alt="RO" style="width:125%; height:100%; border-radius:50%;">
     </button>
   </div>
-
   <div id="privacyContent"></div>
 </div>
 
@@ -114,10 +139,10 @@ h1 {
 </div>
 
 <audio id="audio" src="./assets/Bane.mp3" loop></audio>
-
 <div id="watermark">♥ Made by aleks96_</div>
 
 <script>
+// Elemente
 const enterOverlay = document.getElementById('enterOverlay');
 const privacyText = document.getElementById('privacyText');
 const privacyPopup = document.getElementById('privacyPopup');
@@ -129,9 +154,9 @@ const trackSlider = document.getElementById('trackSlider');
 const trackSpan = document.querySelector('#trackTitle span');
 const privacyContent = document.getElementById('privacyContent');
 const langButtons = document.querySelectorAll('.langBtn');
+const socialButtons = document.querySelectorAll('.social-buttons a');
 
-
-// Conținut în engleză și română
+// Conținut complet în engleză și română
 const privacyTexts = {
   en: `
     <h2>Privacy Policy</h2>
@@ -149,9 +174,9 @@ const privacyTexts = {
     <h3>6. Contact</h3>
     <p>Questions regarding privacy or copyright can be sent to: <b>alekss.inquires@gmail.com</b>.</p>
     <h3>7. Disclaimer</h3>
-    <p>This site is a personal project and is <b>not affiliated with</b> Instagram, YouTube, TikTok, Discord, or any other mentioned services. All brands and logos belong to their rightful owners.</p>
-  <p>The audio/video materials integrated on the website <b>do not belong to me</b>; the copyrights belong to the artists and original owners. They are used only for demonstrative/personal purposes.</p>
-  <p>I do not take responsibility for the content, practices, or privacy policies of external platforms accessible through the links on the site.</p>
+    <p>This site is a personal project and <b>not affiliated with</b> Instagram, YouTube, TikTok, Discord, or any other mentioned services. All brands and logos belong to their rightful owners.</p>
+    <p>The audio/video materials integrated on the website <b>do not belong to me</b>; the copyrights belong to the artists and original owners. They are used only for demonstrative/personal purposes.</p>
+    <p>I do not take responsibility for the content, practices, or privacy policies of external platforms accessible through the links on the site.</p>
   `,
   ro: `
     <h2>Politica de confidențialitate</h2>
@@ -169,9 +194,9 @@ const privacyTexts = {
     <h3>6. Contact</h3>
     <p>Pentru întrebări legate de confidențialitate sau drepturi de autor, mă puteți contacta la: <b>alekss.inquires@gmail.com</b>.</p>
     <h3>7. Disclaimer</h3>
-  <p>Acest site este un proiect personal și <b>nu este afiliat</b> cu Instagram, YouTube, TikTok, Discord sau alte servicii menționate. Toate mărcile și logourile aparțin proprietarilor lor de drept.</p>
-  <p>Materialele audio/video integrate pe site <b>nu îmi aparțin</b>; drepturile de autor aparțin artiștilor și proprietarilor originali. Acestea sunt folosite doar în scop demonstrativ/personal.</p>
-  <p>Nu îmi asum responsabilitatea pentru conținutul, practicile sau politicile de confidențialitate ale platformelor externe accesibile prin linkurile prezente pe site.</p>
+    <p>Acest site este un proiect personal și <b>nu este afiliat</b> cu Instagram, YouTube, TikTok, Discord sau alte servicii menționate. Toate mărcile și logourile aparțin proprietarilor lor de drept.</p>
+    <p>Materialele audio/video integrate pe site <b>nu îmi aparțin</b>; drepturile de autor aparțin artiștilor și proprietarilor originali. Acestea sunt folosite doar în scop demonstrativ/personal.</p>
+    <p>Nu îmi asum responsabilitatea pentru conținutul, practicile sau politicile de confidențialitate ale platformelor externe accesibile prin linkurile prezente pe site.</p>
   `
 };
 
@@ -185,6 +210,7 @@ langButtons.forEach(btn => {
     privacyContent.innerHTML = privacyTexts[lang];
   });
 });
+
 
 // Privacy popup
 privacyText.addEventListener('click', e=>{
@@ -215,6 +241,11 @@ enterOverlay.addEventListener('click', ()=>{
     audio.play();
     playBtn.textContent='⏸';
     trackSpan.style.animationPlayState='running';
+
+    // Fade-in + slide-up butoane social
+    socialButtons.forEach((btn, i) => {
+      setTimeout(() => btn.classList.add('show'), i * 200);
+    });
   }
 });
 
