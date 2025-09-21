@@ -93,11 +93,55 @@ h1 {
 #playBtn { cursor:pointer; font-size:1.2rem; user-select:none; }
 
 #watermark { position: fixed; bottom:10px; left:10px; font-family:'Poppins', sans-serif; font-weight:600; font-size:14px; color:#E3E3E3; opacity:0.7; pointer-events:none; z-index:9999; }
+
+/* GDPR popup mic jos dreapta */
+#cookiePopup {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(30,30,30,0.95);
+  color: #E3E3E3;
+  padding: 15px 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(156,27,48,0.8);
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.9rem;
+  max-width: 300px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.6s ease;
+  z-index: 10;
+}
+#cookiePopup.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+.cookie-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+.cookie-buttons button {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(156,27,48,0.8);
+  background: rgba(20,20,20,0.9);
+  color: #E3E3E3;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s;
+}
+.cookie-buttons button:hover {
+  background: rgba(156,27,48,0.9);
+}
 </style>
 </head>
 
 <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-N0WPFF3FWR"></script>
+ <script async src="https://www.googletagmanager.com/gtag/js?id=G-N0WPFF3FWR"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
@@ -124,6 +168,15 @@ h1 {
     <a href="https://www.tiktok.com/@stefan732_" target="_blank"><img src="./assets/4362958_tiktok_logo_social media_icon.png" alt="TikTok">TikTok</a>
     <a href="https://discord.com/users/813343037199613973" target="_blank"><img src="./assets/636e0a6a49cf127bf92de1e2_icon_clyde_blurple_RGB.png" alt="Discord">Discord</a>
     <a href="mailto:example@example.com?subject=I need a website!&body=This is a business email." target="_blank"><img src="./assets/advertise.png" alt="Advertise">Need a website ?</a>
+  </div>
+</div>
+
+<!-- GDPR cookie popup -->
+<div id="cookiePopup">
+  <p>🍪 We use cookies to enhance the experience.</p>
+  <div class="cookie-buttons">
+    <button id="acceptCookies">Accept</button>
+    <button id="declineCookies">Decline</button>
   </div>
 </div>
 
@@ -166,6 +219,11 @@ const trackSpan = document.querySelector('#trackTitle span');
 const privacyContent = document.getElementById('privacyContent');
 const langButtons = document.querySelectorAll('.langBtn');
 const socialButtons = document.querySelectorAll('.social-buttons a');
+
+// Cookie popup
+const cookiePopup = document.getElementById("cookiePopup");
+const acceptCookies = document.getElementById("acceptCookies");
+const declineCookies = document.getElementById("declineCookies");
 
 // Conținut complet în engleză și română
 const privacyTexts = {
@@ -222,6 +280,18 @@ langButtons.forEach(btn => {
   });
 });
 
+acceptCookies.addEventListener("click", (e) => {
+  e.stopPropagation(); // 🔹 împiedică propagarea click-ului
+  localStorage.setItem("cookieConsent", "accepted");
+  cookiePopup.classList.remove("show");
+});
+
+declineCookies.addEventListener("click", (e) => {
+  e.stopPropagation(); // 🔹 împiedică propagarea click-ului
+  localStorage.setItem("cookieConsent", "declined");
+  cookiePopup.classList.remove("show");
+});
+
 
 // Privacy popup
 privacyText.addEventListener('click', e=>{
@@ -241,25 +311,47 @@ document.addEventListener('click', (e) => {
 });
 
 // Enter overlay click
-enterOverlay.addEventListener('click', ()=>{
-  if(!privacyPopup.classList.contains('show')){
-    enterOverlay.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
-    enterOverlay.style.opacity = '0';
-    enterOverlay.style.transform = 'scale(1.2)';
-    setTimeout(()=>{ enterOverlay.style.display='none'; },800);
+enterOverlay.addEventListener('click', (e) => {
+  // Dacă privacy popup este deschis, nu face nimic
+  if (privacyPopup.classList.contains('show')) return;
 
-    audioPlayer.style.display='flex';
-    audio.play();
-    playBtn.textContent='⏸';
-    trackSpan.style.animationPlayState='running';
+  enterOverlay.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+  enterOverlay.style.opacity = '0';
+  enterOverlay.style.transform = 'scale(1.2)';
+  setTimeout(() => { enterOverlay.style.display = 'none'; }, 800);
 
-    // Fade-in + slide-up butoane social
-    socialButtons.forEach((btn, i) => {
-      setTimeout(() => btn.classList.add('show'), i * 200);
-    });
-  }
+  audioPlayer.style.display = 'flex';
+  audio.play();
+  playBtn.textContent = '⏸';
+  trackSpan.style.animationPlayState = 'running';
+
+  socialButtons.forEach((btn, i) => {
+    setTimeout(() => btn.classList.add('show'), i * 200);
+  });
 });
 
+const consent = localStorage.getItem("cookieConsent");
+  if(consent === "accepted") {
+    // Inițializează GTM / gtag
+    const gtagScript = document.createElement('script');
+    gtagScript.src = "https://www.googletagmanager.com/gtag/js?id=G-N0WPFF3FWR";
+    gtagScript.async = true;
+    document.head.appendChild(gtagScript);
+
+    gtagScript.onload = () => {
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-N0WPFF3FWR');
+    }
+  }
+
+// Cookie popup (5s după intrare)
+setTimeout(() => {
+  if (!localStorage.getItem("cookieConsent")) {
+    cookiePopup.classList.add("show");
+  }
+}, 5000);
 
 
 // Audio player controls
